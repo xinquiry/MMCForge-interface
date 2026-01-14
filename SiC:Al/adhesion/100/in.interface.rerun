@@ -1,0 +1,29 @@
+units metal
+boundary p p f
+atom_style atomic
+read_data SiC_C_Al_interface.lmp
+
+pair_style hybrid tersoff eam/alloy morse 3.0
+pair_coeff * * tersoff SiC.tersoff Si C NULL
+pair_coeff * * eam/alloy Al99.eam.alloy NULL NULL Al
+pair_coeff 1 3 morse 0.4824 1.322 2.92
+pair_coeff 2 3 morse 0.4691 1.738 2.246
+
+
+variable T equal 100
+
+compute Temp all temp
+compute ppe all pe
+compute p all pressure Temp
+
+
+thermo 1000
+thermo_style custom step temp pe ke etotal pxx pyy pzz lx ly lz
+fix npt all npt temp $T $T 0.1 x 0 0 0.1 y 0 0 0.1
+fix recenter all recenter INIT INIT INIT
+fix 1 all ave/time 10 100 1000 c_ppe append SiC_Al_pe.profile
+dump 1 all atom 1000 dump.*.atom
+timestep 0.001
+run 100000
+
+write_data interface_equ_T_$T.lmp

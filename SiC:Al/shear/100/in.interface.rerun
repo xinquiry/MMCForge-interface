@@ -1,0 +1,40 @@
+units metal
+boundary p p f
+atom_style atomic
+
+
+variable T equal 100
+
+read_data interface_equ_T_$T.lmp
+
+pair_style hybrid tersoff eam/alloy morse 3.0
+pair_coeff * * tersoff SiC.tersoff Si C NULL
+pair_coeff * * eam/alloy Al99.eam.alloy NULL NULL Al
+pair_coeff 1 3 morse 0.4824 1.322 2.92
+pair_coeff 2 3 morse 0.4691 1.738 2.246
+
+
+
+region lower block INF INF INF INF INF 10 
+region upper block INF INF INF INF 290 INF 
+group lower region lower
+group upper region upper
+group boundary union lower upper
+
+compute Temp all temp
+compute ppe all pe
+compute st all stress/atom NULL
+compute s all reduce sum c_st[6]/vol/10000
+variable eps equal (step)*1e-7
+
+
+#Compression
+thermo 1000
+thermo_style custom step temp pe ke etotal pxx pyy pzz lx ly lz
+fix nvt all nvt temp $T $T 0.1
+fix shearfix upper move linear 0 3e-2 0
+fix freezee lower move linear 0 0 0
+fix out all print 10000 "${eps}   ${pr}" append stress_strain.txt screen no
+dump 1 all atom 25000 dump.*.atom
+timestep 0.001
+run 2000000

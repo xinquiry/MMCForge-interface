@@ -1,0 +1,24 @@
+# 忽略数据文件和中间文件
+*.lmp
+*.data
+*.cfg
+*.atom
+*.profile
+*.txt
+*.eam*
+*.meam
+*.tersoff
+*.cif
+log.lammps
+
+# 忽略macOS文件
+.DS_Store
+
+# 忽略测试目录
+.quick_test/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.python-version

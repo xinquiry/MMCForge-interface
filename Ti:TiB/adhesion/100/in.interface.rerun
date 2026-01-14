@@ -1,0 +1,26 @@
+units metal
+boundary f p p
+atom_style atomic
+read_data TiB_Ti_interface.data
+
+pair_style meam
+pair_coeff * * library.meam B Ti TiB.meam B Ti
+
+
+variable T equal 100
+
+compute Temp all temp
+compute ppe all pe
+compute p all pressure Temp
+
+
+thermo 1000
+thermo_style custom step temp pe ke etotal pxx pyy pzz lx ly lz
+fix npt all npt temp $T $T 0.1 y 0 0 0.1 z 0 0 0.1
+fix recenter all recenter INIT INIT INIT
+fix 1 all ave/time 10 100 1000 c_ppe append TiB_Ti_pe.profile
+dump 1 all atom 1000 dump.*.atom
+timestep 0.001
+run 100000
+
+write_data interface_equ_T_$T.lmp

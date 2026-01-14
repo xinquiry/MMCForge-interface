@@ -1,0 +1,8 @@
+units metal
+boundary p p p
+atom_style atomic
+read_data TiB_cut.lmp
+read_data Ti_cut.lmp add append offset 1 1 1 1 1 
+
+write_data TiB_Ti_interface.data
+
