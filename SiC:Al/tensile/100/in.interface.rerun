@@ -24,17 +24,18 @@ group boundary union lower upper
 compute Temp all temp
 compute ppe all pe
 compute st all stress/atom NULL
-compute s all reduce sum c_st[3]/vol/10000
+compute s_raw all reduce sum c_st[3]
+variable s equal c_s_raw/vol/10000
 variable eps equal (step)*1e-7
 
 
-#Compression
+#Tensile
 thermo 1000
 thermo_style custom step temp pe ke etotal pxx pyy pzz lx ly lz
 fix nvt all nvt temp $T $T 0.1
 fix shearfix upper move linear 0 0 3e-2
 fix freezee lower move linear 0 0 0
-fix out all print 10000 "${eps}   ${pr}" append stress_strain.txt screen no
+fix out all print 10000 "${eps}   ${s}" append stress_strain.txt screen no
 dump 1 all atom 25000 dump.*.atom
 timestep 0.001
 run 2000000
