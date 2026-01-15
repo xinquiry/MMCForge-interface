@@ -1,5 +1,5 @@
 units metal
-boundary f p p 
+boundary f p p
 atom_style atomic
 
 variable T equal 100
@@ -10,11 +10,13 @@ read_data interface_equ_T_$T.lmp
 pair_style meam
 pair_coeff * * library.meam B Ti TiB.meam B Ti
 
+# 添加wall防止原子飞出x方向边界
+fix wall_lo all wall/reflect xlo EDGE
+fix wall_hi all wall/reflect xhi EDGE
 
 
-
-region lower block INF 10 INF INF INF INF 
-region upper block 290 INF INF INF INF INF 
+region lower block INF 10 INF INF INF INF
+region upper block 290 INF INF INF INF INF
 group lower region lower
 group upper region upper
 group boundary union lower upper

@@ -13,10 +13,13 @@ pair_coeff * * eam/alloy Al99.eam.alloy NULL NULL Al
 pair_coeff 1 3 morse 0.4824 1.322 2.92
 pair_coeff 2 3 morse 0.4691 1.738 2.246
 
+# 添加wall防止原子飞出z方向边界
+fix wall_lo all wall/reflect zlo EDGE
+fix wall_hi all wall/reflect zhi EDGE
 
 
-region lower block INF INF INF INF INF 10 
-region upper block INF INF INF INF 290 INF 
+region lower block INF INF INF INF INF 10
+region upper block INF INF INF INF 290 INF
 group lower region lower
 group upper region upper
 group boundary union lower upper

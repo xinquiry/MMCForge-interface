@@ -6,8 +6,12 @@ read_data TiB_Ti_interface.data
 pair_style meam
 pair_coeff * * library.meam B Ti TiB.meam B Ti
 
-# 能量最小化，防止原子丢失
-minimize 1.0e-4 1.0e-6 1000 10000
+# 添加wall防止原子飞出x方向边界
+fix wall_lo all wall/reflect xlo EDGE
+fix wall_hi all wall/reflect xhi EDGE
+
+# 能量最小化
+minimize 1.0e-6 1.0e-8 10000 100000
 reset_timestep 0
 
 variable T equal 100
@@ -16,13 +20,13 @@ compute Temp all temp
 compute ppe all pe
 compute p all pressure Temp
 
-# 先用小时间步长预热
+# 缓慢预热
 thermo 100
 thermo_style custom step temp pe ke etotal pxx pyy pzz lx ly lz
-timestep 0.0005
-velocity all create 10 12345 dist gaussian
-fix nvt_preheat all nvt temp 10 $T 0.1
-run 5000
+timestep 0.0001
+velocity all create 1 12345 dist gaussian
+fix nvt_preheat all nvt temp 1 $T 1.0
+run 20000
 unfix nvt_preheat
 
 # 正式NPT平衡

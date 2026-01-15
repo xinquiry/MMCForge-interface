@@ -13,8 +13,8 @@ pair_coeff 2 3 morse 0.4691 1.738 2.246
 fix wall_lo all wall/reflect zlo EDGE
 fix wall_hi all wall/reflect zhi EDGE
 
-# 能量最小化，防止原子丢失
-minimize 1.0e-4 1.0e-6 1000 10000
+# 能量最小化
+minimize 1.0e-6 1.0e-8 10000 100000
 reset_timestep 0
 
 variable T equal 100
@@ -23,13 +23,13 @@ compute Temp all temp
 compute ppe all pe
 compute p all pressure Temp
 
-# 先用小时间步长预热（更缓慢升温）
+# 缓慢预热
 thermo 100
 thermo_style custom step temp pe ke etotal pxx pyy pzz lx ly lz
-timestep 0.0002
+timestep 0.0001
 velocity all create 1 12345 dist gaussian
-fix nvt_preheat all nvt temp 1 $T 0.5
-run 10000
+fix nvt_preheat all nvt temp 1 $T 1.0
+run 20000
 unfix nvt_preheat
 
 # 正式NPT平衡
