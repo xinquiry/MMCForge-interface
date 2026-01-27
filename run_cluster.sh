@@ -6,7 +6,7 @@ set -e
 
 # 配置 - 自动检测脚本所在目录
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
-CORES_PER_SYSTEM=128  # Ti:TiB单独跑用全部128核
+CORES_PER_SYSTEM=64  # 每个体系用64核
 
 # 允许以root运行mpirun
 export OMPI_ALLOW_RUN_AS_ROOT=1
