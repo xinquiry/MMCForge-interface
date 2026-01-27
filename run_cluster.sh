@@ -4,8 +4,8 @@
 
 set -e
 
-# 配置
-BASE_DIR="${BASE_DIR:-$HOME/MMCForge-interface}"
+# 配置 - 自动检测脚本所在目录
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 CORES_PER_SYSTEM=64  # 每个体系用64核，共128核
 
 cd "$BASE_DIR"
