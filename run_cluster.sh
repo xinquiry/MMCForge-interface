@@ -8,6 +8,10 @@ set -e
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 CORES_PER_SYSTEM=64  # 每个体系用64核，共128核
 
+# 允许以root运行mpirun
+export OMPI_ALLOW_RUN_AS_ROOT=1
+export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+
 cd "$BASE_DIR"
 echo "========================================"
 echo "开始时间: $(date)"
