@@ -61,29 +61,65 @@ run_SiCAl() {
     echo "[SiC:Al] 完成 $(date)"
 }
 
-# 并行运行两个体系
-echo "启动并行任务..."
-run_TiTiB > "$BASE_DIR/Ti_TiB.log" 2>&1 &
-PID_TiTiB=$!
+# Ti:TiB 只跑力学测试（跳过adhesion）
+run_TiTiB_mechanical() {
+    echo "[Ti:TiB] 力学测试开始 $(date)"
 
-run_SiCAl > "$BASE_DIR/SiC_Al.log" 2>&1 &
-PID_SiCAl=$!
+    # 清理旧数据
+    rm -f "$BASE_DIR/Ti:TiB/tension/100/stress_strain.txt"
+    rm -f "$BASE_DIR/Ti:TiB/shear/100/stress_strain.txt"
 
-echo "Ti:TiB PID: $PID_TiTiB"
-echo "SiC:Al PID: $PID_SiCAl"
+    echo "[Ti:TiB] tension"
+    cd "$BASE_DIR/Ti:TiB/tension/100"
+    mpirun -np $CORES_PER_SYSTEM lmp -in in.interface.rerun
 
-# 等待两个任务完成
-echo "等待任务完成..."
-wait $PID_TiTiB
-echo "Ti:TiB 已完成"
+    echo "[Ti:TiB] shear"
+    cd "$BASE_DIR/Ti:TiB/shear/100"
+    mpirun -np $CORES_PER_SYSTEM lmp -in in.interface.rerun
 
-wait $PID_SiCAl
-echo "SiC:Al 已完成"
+    echo "[Ti:TiB] 力学测试完成 $(date)"
+}
+
+# 根据参数选择运行模式
+case "${1:-all}" in
+    titib)
+        echo "只运行 Ti:TiB 力学测试..."
+        run_TiTiB_mechanical
+        ;;
+    sicall)
+        echo "只运行 SiC:Al..."
+        run_SiCAl
+        ;;
+    all)
+        # 并行运行两个体系
+        echo "启动并行任务..."
+        run_TiTiB > "$BASE_DIR/Ti_TiB.log" 2>&1 &
+        PID_TiTiB=$!
+
+        run_SiCAl > "$BASE_DIR/SiC_Al.log" 2>&1 &
+        PID_SiCAl=$!
+
+        echo "Ti:TiB PID: $PID_TiTiB"
+        echo "SiC:Al PID: $PID_SiCAl"
+
+        # 等待两个任务完成
+        echo "等待任务完成..."
+        wait $PID_TiTiB
+        echo "Ti:TiB 已完成"
+
+        wait $PID_SiCAl
+        echo "SiC:Al 已完成"
+        ;;
+    *)
+        echo "用法: $0 [all|titib|sicall]"
+        echo "  all    - 运行全部（默认）"
+        echo "  titib  - 只运行 Ti:TiB tension/shear（跳过adhesion）"
+        echo "  sicall - 只运行 SiC:Al"
+        exit 1
+        ;;
+esac
 
 echo ""
 echo "========================================"
-echo "全部完成! $(date)"
+echo "完成! $(date)"
 echo "========================================"
-echo "日志文件:"
-echo "  - Ti:TiB: $BASE_DIR/Ti_TiB.log"
-echo "  - SiC:Al: $BASE_DIR/SiC_Al.log"
