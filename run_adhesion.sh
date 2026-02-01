@@ -7,7 +7,7 @@ set -e
 
 # 配置
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
-CORES_PER_TEMP=18  # 55核限制，18×3=54
+CORES_PER_TEMP=50  # 55核限制，串行运行
 STEPS=20000  # 减少步数加速（原100000）
 
 # 允许以root运行
@@ -140,20 +140,15 @@ EOF
     echo "[${T}K/${T_C}°C] 完成 $(date)"
 }
 
-# 并行运行3个温度
-echo "启动3个温度的并行计算..."
+# 串行运行3个温度（每个用50核更快）
+echo "串行运行3个温度..."
 
 for i in "${!TEMPS[@]}"; do
-    run_temperature "${TEMPS[$i]}" "${TEMPS_C[$i]}" > "$BASE_DIR/Ti:TiB/adhesion/${TEMPS[$i]}K.log" 2>&1 &
-    PIDS[$i]=$!
-    echo "温度 ${TEMPS_C[$i]}°C (${TEMPS[$i]}K) PID: ${PIDS[$i]}"
-done
-
-# 等待所有任务完成
-echo "等待计算完成..."
-for i in "${!PIDS[@]}"; do
-    wait ${PIDS[$i]}
-    echo "温度 ${TEMPS_C[$i]}°C 完成"
+    echo ""
+    echo "========================================"
+    echo "开始温度 ${TEMPS_C[$i]}°C (${TEMPS[$i]}K)"
+    echo "========================================"
+    run_temperature "${TEMPS[$i]}" "${TEMPS_C[$i]}" 2>&1 | tee "$BASE_DIR/Ti:TiB/adhesion/${TEMPS[$i]}K.log"
 done
 
 echo ""
