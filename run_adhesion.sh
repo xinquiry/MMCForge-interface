@@ -7,7 +7,7 @@ set -e
 
 # 配置
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
-CORES_PER_TEMP=40
+CORES_PER_TEMP=18  # 55核限制，18×3=54
 STEPS=20000  # 减少步数加速（原100000）
 
 # 允许以root运行
